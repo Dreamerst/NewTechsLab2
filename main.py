@@ -1,6 +1,8 @@
 import os
+import random
 import shutil
 from pathlib import Path
+
 import pandas as pd
 
 
@@ -38,3 +40,29 @@ def copy_with_class_names(dataset_root, output_root, annotation_csv):
     df = pd.DataFrame(rows, columns=["absolute_path", "relate_path", "output_class"])
     df.to_csv(annotation_csv, index=False)
     return df
+
+
+def copy_with_random_numbers(dataset_root, output_root, annotation_csv, max_num=10000):
+    output_root = Path(output_root)
+    output_root.mkdir(parents=True, exist_ok=True)
+
+    files = []
+    for class_dir in sorted(p for p in Path(dataset_root).iterdir() if p.is_dir()):
+        for f in sorted(p for p in class_dir.iterdir() if p.is_file()):
+            files.append((class_dir.name, f))
+
+    numbers = random.sample(range(max_num + 1), len(files))
+    rows = []
+    for (cls, src), num in zip(files, numbers):
+        dst = output_root / f"{num:05d}.jpg"
+        shutil.copy2(src, dst)
+        rows.append({
+            "absolute_path": str(dst.resolve()),
+            "relate_path": os.path.relpath(dst, Path.cwd()),
+            "output_class": cls,
+        })
+    df = pd.DataFrame(rows, columns=["absolute_path", "relate_path", "output_class"])
+    df.to_csv(annotation_csv, index=False)
+    return df
+
+
