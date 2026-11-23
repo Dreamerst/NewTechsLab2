@@ -66,3 +66,17 @@ def copy_with_random_numbers(dataset_root, output_root, annotation_csv, max_num=
     return df
 
 
+def make_next_instance(dataset_root="dataset"):
+    queues: dict[str, list[Path]] = {}
+
+    def next_instance(class_label):
+        if class_label not in queues:
+            files = [p for p in (Path(dataset_root) / class_label).iterdir() if p.is_file()]
+            random.shuffle(files)
+            queues[class_label] = files
+        if not queues[class_label]:
+            return None
+        return queues[class_label].pop()
+
+    return next_instance
+
