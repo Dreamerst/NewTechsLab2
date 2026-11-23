@@ -80,3 +80,54 @@ def make_next_instance(dataset_root="dataset"):
 
     return next_instance
 
+
+class ClassIterator:
+    def __init__(self, class_label, dataset_root="dataset"):
+        self.class_label = class_label
+        self._files = [p for p in (Path(dataset_root) / class_label).iterdir() if p.is_file()]
+        self._i = 0
+
+    def __iter__(self):
+        return self
+
+    def __next__(self) -> Path:
+        if self._i >= len(self._files):
+            raise StopIteration
+        p = self._files[self._i]
+        self._i += 1
+        return p
+
+
+class DatasetIterator:
+    def __init__(self, dataset_root="dataset"):
+        classes = [p.name for p in Path(dataset_root).iterdir() if p.is_dir()]
+        self._iterators = {c: ClassIterator(c, dataset_root) for c in classes}
+        self._queue = list(classes)
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        while self._queue:
+            cls = self._queue[0]
+            try:
+                return cls, next(self._iterators[cls])
+            except StopIteration:
+                self._queue.pop(0)
+        raise StopIteration
+
+
+if __name__ == "__main__":
+    dataset_root = "D:\\Programming\\University\\Python\\NewTechsLab1\\dataset"
+    create_annotation(dataset_root, "dataset/annotation.csv")
+
+    copy_with_class_names(dataset_root, "dataset_flat", "dataset_flat/annotation.csv")
+
+    copy_with_random_numbers(dataset_root, "dataset_shuffled", "dataset_shuffled/annotation.csv")
+
+    nxt = make_next_instance(dataset_root)
+    for i in range(5):
+        print(nxt("rose"))
+
+    for cls, path in DatasetIterator(dataset_root):
+        print(cls, path)
