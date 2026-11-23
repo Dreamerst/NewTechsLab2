@@ -119,7 +119,7 @@ class DatasetIterator:
 
 if __name__ == "__main__":
     dataset_root = "D:\\Programming\\University\\Python\\NewTechsLab1\\dataset"
-    create_annotation(dataset_root, "dataset/annotation.csv")
+    create_annotation(dataset_root, "annotation.csv")
 
     copy_with_class_names(dataset_root, "dataset_flat", "dataset_flat/annotation.csv")
 
