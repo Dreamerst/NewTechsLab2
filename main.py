@@ -66,7 +66,7 @@ def copy_with_random_numbers(dataset_root, output_root, annotation_csv, max_num=
     return df
 
 
-def make_next_instance(dataset_root="dataset"):
+def make_next_instance(dataset_root):
     queues: dict[str, list[Path]] = {}
 
     def next_instance(class_label):
@@ -82,7 +82,7 @@ def make_next_instance(dataset_root="dataset"):
 
 
 class ClassIterator:
-    def __init__(self, class_label, dataset_root="dataset"):
+    def __init__(self, class_label, dataset_root):
         self.class_label = class_label
         self._files = [p for p in (Path(dataset_root) / class_label).iterdir() if p.is_file()]
         self._i = 0
@@ -99,7 +99,7 @@ class ClassIterator:
 
 
 class DatasetIterator:
-    def __init__(self, dataset_root="dataset"):
+    def __init__(self, dataset_root):
         classes = [p.name for p in Path(dataset_root).iterdir() if p.is_dir()]
         self._iterators = {c: ClassIterator(c, dataset_root) for c in classes}
         self._queue = list(classes)
